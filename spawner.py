@@ -36,9 +36,9 @@ def spawn_dict_menu(menu_buttons:list, crud_entity:str=None)->list:
 def spawn_inline_button(button_text:str, callback_data:str):
     return types.InlineKeyboardButton(text=button_text, callback_data=callback_data)
  
-def spawn_back_button(return_type=False, command_type=BACK_TO_MAIN_COMMAND)->list:
+def spawn_back_button(return_type=False, button_text:str="🔙 У головне меню", command_type=BACK_TO_MAIN_COMMAND)->list:
     markup = []
-    type = types.InlineKeyboardButton("🔙 У головне меню",callback_data=command_type)
+    type = types.InlineKeyboardButton(button_text, callback_data=command_type)
     if return_type == True:
         return type
     markup.append(type)

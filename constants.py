@@ -1,15 +1,3 @@
-# menu types
-BACK_MENU = 'back_button'
-MAIN_MENU = 'main_menu'
-ADMIN_MENU = 'admin_menu'
-CALENDAR_MENU = 'calendar_menu'
-TODAY_SCHEDULE_MENU = 'today_schedule'
-CRUD_TEACHER_MENU = 'crud_teacher_menu'
-CRUD_SCHEDULE_MENU = 'crud_schedule_menu'
-CRUD_SUBJECT_MENU = 'crud_subject_menu'
-CRUD_HOMEWORK_MENU = 'crud_homework_menu'
-CRUD_TEACHER_MENU = 'crud_teacher_menu'
-
 # get commands
 GET_CALENDAR_COMMAND='get_calendar'
 GET_SCHEDULE_COMMAND='get_schedule'
@@ -29,11 +17,9 @@ CRUD_SUBJECT_COMMAND = 'crud_subject'
 IGNORE_COMMAND = 'ignore'
 
 # path's
-ADMIN_ID = "ADMIN_ID"
 API_TOKEN = "API_TOKEN"
 BOT_INFO_PATH = "BOT_INFO_PATH"
 CONTACT_INFO_PATH = "CONTACT_INFO_PATH"
-LESSONS_PATH = "LESSONS_PATH"
 DB_PATH = "schedule.db"
 
 # messages
@@ -51,3 +37,6 @@ TEACHER = 'teacher'
 LESSON = 'lesson'
 SUBJECT = 'subject'
 HOMEWROK = 'homework'
+
+#parse_modes
+HTML = 'html'
