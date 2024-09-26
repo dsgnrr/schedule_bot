@@ -1,7 +1,12 @@
 import uuid
 import os
 
-from constants import *
+from constants.messages import *
+
+def get_uuid1(as_string:bool=True):
+    if as_string:
+        return str(uuid.uuid1())
+    return uuid.uuid1()
 
 def is_valid_uuid(param: str, version:int=1) -> bool:
     try:
@@ -28,7 +33,7 @@ def read_text_file(env_path):
         base_dir = os.getcwd()
         text_file_path = os.getenv(env_path)
         if not text_file_path:
-            return UNKNOWN_FUNCTION_ERROR
+            return UNKNOWN_FUNCTION_MESSAGE
         file_path = os.path.join(os.path.join(base_dir, "wwwroot"), text_file_path)
         with open(file_path, 'r', encoding="utf-8") as file:
             content = file.read()
@@ -37,4 +42,4 @@ def read_text_file(env_path):
         print(f"Ошибка: Файл не найден по пути {file_path}. {e}")
     except Exception as e:
         print(f"Произошла непредвиденная ошибка при чтении файла: {e}")
-    return UNKNOWN_FUNCTION_ERROR
+    return UNKNOWN_FUNCTION_MESSAGE

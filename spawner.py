@@ -1,7 +1,11 @@
 import calendar
 
+from main import entity_buttons_data
+from utils import utils
+from constants.buttons import *
+from constants.crud import *
+from constants.hints import *
 from datetime import datetime
-from constants import*
 from telebot import types
 
 main_menu_buttons = {
@@ -36,7 +40,7 @@ def spawn_dict_menu(menu_buttons:list, crud_entity:str=None)->list:
 def spawn_inline_button(button_text:str, callback_data:str):
     return types.InlineKeyboardButton(text=button_text, callback_data=callback_data)
  
-def spawn_back_button(return_type=False, button_text:str="🔙 У головне меню", command_type=BACK_TO_MAIN_COMMAND)->list:
+def spawn_back_button(return_type=False, button_text:str=BACK_TO_MAIN_BUTTON_TEXT, command_type=BACK_TO_MAIN_COMMAND)->list:
     markup = []
     type = types.InlineKeyboardButton(button_text, callback_data=command_type)
     if return_type == True:
@@ -73,3 +77,49 @@ def spawn_calendar_menu(year=None, month=None)->list:
     # row.append(types.InlineKeyboardButton("⏭ Наступний місяць", callback_data=IGNORE))
     markup_rows.append(row)
     return markup_rows
+
+def spawn_teacher_buttons(tg_message, query:list, crud_command:str, entity_name:str, target_id:str=None, field_name:str=None):
+    buttons=[]
+    back_button = None
+    chat_id = tg_message.chat.id
+    if len(query) != 0:
+        entity_buttons_data[chat_id] ={}
+        for teacher in query:
+            if field_name:
+                callback_data = f"{crud_command}_{entity_name}_{teacher.id}_{field_name}"
+                if target_id:
+                    callback_data = f"{crud_command}_{entity_name}_{target_id}_{field_name}_{teacher.id}"
+            else:
+                callback_data = f"{crud_command}_{entity_name}_{teacher.id}"
+            print(teacher.id)
+            button_id = f"{ENTITY_COMMAND}_{utils.get_uuid1()}"
+            entity_buttons_data[chat_id][button_id] = callback_data
+            buttons.append(spawn_inline_button(button_text=teacher.name, callback_data=button_id))
+            back_button = spawn_back_button(return_type=True, button_text=CANCEL_BUTTON_TEXT, command_type=BACK_TO_ADMIN_COMMAND)
+    else:
+        back_button = spawn_back_button(return_type=True, button_text=BACK_TO_MAIN_BUTTON_TEXT, command_type=BACK_TO_ADMIN_COMMAND)
+    buttons.append(back_button)
+    return buttons
+
+def spawn_subject_buttons(tg_message, query:list, crud_command:str, entity_name:str, target_id:str=None, field_name:str=None):
+    buttons=[]
+    back_button = None
+    chat_id = tg_message.chat.id
+    if len(query) != 0:
+        entity_buttons_data[chat_id] ={}
+        for subject in query:
+            if field_name:
+                callback_data = f"{crud_command}_{entity_name}_{subject.id}_{field_name}"
+                if target_id:
+                    callback_data = f"{crud_command}_{entity_name}_{target_id}_{field_name}_{subject.id}"
+            else:
+                callback_data = f"{crud_command}_{entity_name}_{subject.id}"
+            button_id = f"{ENTITY_COMMAND}_{utils.get_uuid1()}"
+            entity_buttons_data[chat_id][button_id] = callback_data
+            buttons.append(spawn_inline_button(button_text=subject.name, callback_data=callback_data))
+            back_button = spawn_back_button(return_type=True, button_text=CANCEL_BUTTON_TEXT, command_type=BACK_TO_ADMIN_COMMAND)
+    else:
+        back_button = spawn_back_button(return_type=True, button_text=BACK_TO_MAIN_BUTTON_TEXT, command_type=BACK_TO_ADMIN_COMMAND)
+    buttons.append(back_button)
+    return buttons
+

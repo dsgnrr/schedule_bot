@@ -4,6 +4,7 @@ from models.subject import *
 from models.teacher import * 
 from utils import result
 from utils import utils 
+from .connection import db
 
 class TeacherDao:
     def __init__(self) -> None:
@@ -43,10 +44,7 @@ class TeacherDao:
             return result.Result(False, "🙈 Викладачів не знайдено")
         
     def get_teachers(self):
-        try:
-            return Teacher.select()
-        except Exception:
-            return []
+        return Teacher.select()
         
     def delete_teacher(self, teacher_id):
         valid_res=utils.is_valid_uuid(teacher_id)
@@ -56,6 +54,7 @@ class TeacherDao:
         try:
             teacher = Teacher.get(Teacher.id==uuid_obj)
             teacher_name = teacher.name
+            SubjectDao().remove_teacher(teacher_id=teacher_id)
             teacher.delete_instance()
             return result.Result(True, f"✅ Викладач <b>{teacher_name}</b> успішно видалений")
         except DoesNotExist:
@@ -69,13 +68,61 @@ class SubjectDao:
         if len(subject_name)> 150:
             return result.Result(False, '🚫 Максимальна кількість символів 150')
         subject = Subject().create(name=subject_name)
-        return result.Result(is_success=True,message='✅ Предмет успішно створений', data=subject) 
+        return result.Result(is_success=True, message='✅ Предмет успішно створений', data=subject) 
+    
+    def change_subject_name(self, subject_id:str, subject_name:str):
+        query = self.get_subject_by_id(subject_id=subject_id)
+        if query.is_success == False:
+            return query
+        subject = query.data
+        subject.name = subject_name
+        subject.save()
+        return result.Result(True, "✅ Назву предмета успішно змінено")
     
     def change_teacher(self, subject_id:str, teacher_id:str):
-        pass
+        teacher_result = TeacherDao().get_teacher_by_id(teacher_id=teacher_id)
+        if teacher_result.is_success == False:
+            return teacher_result
+        subject_result = self.get_subject_by_id(subject_id=subject_id)
+        if subject_result.is_success == False:
+            return subject_result
+        subject = subject_result.data
+        subject.teacher_id = teacher_result.data.id
+        with db.atomic():
+            subject.save()
+        return result.Result(True, "✅ Викладача предмету оновлено")
+      
+    def remove_teacher(self, teacher_id:str):
+        teacher_result = TeacherDao().get_teacher_by_id(teacher_id=teacher_id)
+        if teacher_result.is_success == False:
+            return teacher_result
+        teacher_name = teacher_result.data.name
+        subjects = Subject.select().where(Subject.teacher_id==teacher_result.data.id)
+        for subject in subjects:
+            if subject !=None:
+                subject.teacher_id = None
+                subject.save()
+        return result.Result(True, f"✅ Викладач <b>{teacher_name}</b> успішно видалений")
     
-    def get_subjects(self):
+    def get_subject_by_id(self, subject_id:str):
+        valid_res=utils.is_valid_uuid(subject_id)
+        if valid_res == False:
+            return result.Result(False, "🚫 Невірний формат id") 
+        uuid_obj = uuid.UUID(subject_id, version=1) 
         try:
-            return Subject.select()
-        except Exception:
-            return []
+            subject = Subject.get(Subject.id==uuid_obj)
+            return result.Result(True, f"✅ Предмет знайдено", subject)
+        except DoesNotExist:
+            return result.Result(False, "🙈 Предметів не знайдено")
+         
+    def get_subjects(self):
+        return Subject.select()
+    
+    def delete_subject(self, subject_id):
+        query = self.get_subject_by_id(subject_id=subject_id)
+        if query.is_success == False:
+            return query
+        subject = query.data
+        subject_name = subject.name
+        subject.delete_instance()
+        return result.Result(True, f"✅ Предмет <b>{subject_name}</b> успішно видалений")
